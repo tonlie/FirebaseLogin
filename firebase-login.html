@@ -42,7 +42,7 @@ Example (TODO):
         display: block;
         box-sizing: border-box;
         font-family: Roboto, sans-serif;
-        background-color: #131313;
+        background-color: #818181;
       }
 
       .author img {
@@ -83,6 +83,7 @@ Example (TODO):
     <p>
       <br>statusKnown: [[statusKnown]]
       <br>LoginProvider: [[firebaseProvider]]
+      <br>User: [[user]]
     </p>
 
     <!-- my stuff-->
@@ -98,18 +99,21 @@ Example (TODO):
     </firebase-auth>
 
     <paper-menu-button
+      id="menuButton"
       horizontal-align="left"
       vertical-align="bottom"
       vertical-offset="-5">
       <paper-button class="dropdown-trigger">
         <iron-icon icon="icons:account-circle"></iron-icon>
-        Login
+        [[userName]]
       </paper-button>
       <paper-menu class="dropdown-content">
-        <paper-item id="loginMenueGoogle" on-click="loginGoogle" hidden$="[[statusKnown]]">Login with Google</paper-item>
-        <paper-item id="loginMenueGithub" on-click="loginGithub" hidden$="[[statusKnown]]">Login with github</paper-item>
-        <paper-item id="loginMenueCustom" on-click="loginCustom" hidden$="[[statusKnown]]">Login with own Account/custom</paper-item>
-        <paper-item id="loginMenueLogout" on-click="logout" hidden$="[[!statusKnown]]">Logout</paper-item>
+        <paper-item id="loginMenuFacebook" on-click="login" hidden$="[[statusKnown]]">Login with Facebook</paper-item>
+        <paper-item id="loginMenuGoogle" on-click="login" hidden$="[[statusKnown]]">Login with Google</paper-item>
+        <paper-item id="loginMenuGithub" on-click="login" hidden$="[[statusKnown]]">Login with Github</paper-item>
+        <paper-item id="loginMenuTwitter" on-click="login" hidden$="[[statusKnown]]">Login with Facebook</paper-item>
+        <paper-item id="loginMenuEmailPass" on-click="login" hidden$="[[statusKnown]]">Login with Firebases own E-Mail&Password</paper-item>
+        <paper-item id="loginMenuLogout" on-click="logout" hidden$="[[!statusKnown]]">Logout</paper-item>
       </paper-menu>
     </paper-menu-button>
   </template>
@@ -131,6 +135,30 @@ Example (TODO):
          * `github` enables github authentication provider
          */
         github: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        /**
+         * `facebook` enables facebook authentication provider
+         */
+        facebook: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        /**
+         * `twitter` enables twitter authentication provider
+         */
+        twitter: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        /**
+         * `mailPass` enables firebases own e-mail & password provider
+         */
+        mailPass: {
           type: Boolean,
           value: false,
           notify: true
@@ -192,7 +220,11 @@ Example (TODO):
         // This is the point where you should make modifications to the DOM (when
         // necessary), or kick off any processes the element wants to perform.
 
-        this.checkMenueItems();
+        // Set basic username a.k.a. Login-Button text
+        if(!this.statusKnown)
+          this.userName = "Login";
+
+        this.checkMenueItemsAndUsername();
         this.firebaseURL = 'https://polytodo.firebaseio.com/';
       },
 
@@ -218,23 +250,31 @@ Example (TODO):
        * Login function for the google authentication.
        * <br>TODO: Make one function for all providers...
        */
-      loginGoogle: function(event) {
-        this.statusKnown = true;
+      login: function(event) {
+        this.$.menuButton.close();
 
-        // deactivated for offline testing
         if(event.srcElement.id.includes("Google"))
         {
-          alert("logging in via google-provider");
           this.firebaseProvider = 'google';
         }
         else if (event.srcElement.id.includes("Github"))
         {
-          alert("logging in via github-provider");
           this.firebaseProvider = 'github';
+        }
+        else if (event.srcElement.id.includes("Facebook"))
+        {
+          this.firebaseProvider = 'facebook';
+        }
+        else if (event.srcElement.id.includes("Twitter"))
+        {
+          this.firebaseProvider = 'twitter';
+        }
+        else if (event.srcElement.id.includes("mailPass"))
+        {
+          this.firebaseProvider = 'password';
         }
         else if (event.srcElement.id.includes("Custom"))
         {
-          alert("logging in via custom-provider");
           this.firebaseProvider = 'custom';
         }
         else {
@@ -250,13 +290,11 @@ Example (TODO):
        * Calls convenience functions and sets up firebase reference.
        */
       onFirebaseLogin: function(event) {
-        //alert('logged in via google!');
-
         // set statusKnown again, so hiding Login/Logout button works
         // seems like, it is set after the buttons are drawn on init
         this.statusKnown = true;
         // set correct username
-        this.updateUserName();
+        this.checkMenueItemsAndUsername();
         this.ref = new Firebase(this.firebaseURL + '/user/' + event.detail.user.uid);
         //this.ref.on('value', function(snapshot) {
         //  app.updateItems(snapshot);
@@ -269,25 +307,29 @@ Example (TODO):
        */
       logout: function() {
         // deactivated for offline testing -> To be tested!
+        this.$.menuButton.close();
         this.$.baseLogin.logout();
-        // TODO
+
         this.statusKnown = false;
-        this.checkMenueItems();
+        this.checkMenueItemsAndUsername();
       },
 
       /**
        * Hides unused login types from login menue
-       * <br>TODO: could additionally be used to adjust Username/Login/Logout String
-       * on the button
+       *
+       * Additionally used to adjust Username/Login/Logout String
+       * on the button.
        */
-      checkMenueItems: function() {
+      checkMenueItemsAndUsername: function() {
         // hide deactivated login methods
-        if(!this.google)
-          document.getElementById('loginMenueGoogle').setAttribute('hidden', true);
-        if(!this.github)
-          document.getElementById('loginMenueGithub').setAttribute('hidden', true);
-        if(!this.custom)
-          document.getElementById('loginMenueCustom').setAttribute('hidden', true);
+        if(!this.statusKnown) {
+          if(!this.google)
+            document.getElementById('loginMenueGoogle').setAttribute('hidden', true);
+          if(!this.github)
+            document.getElementById('loginMenueGithub').setAttribute('hidden', true);
+          if(!this.custom)
+            document.getElementById('loginMenueCustom').setAttribute('hidden', true);
+        }
 
         // name functionality
         if(this.user) {
@@ -298,10 +340,13 @@ Example (TODO):
             case 'github':
               this.userName = this.user.github.username;
               break;
+            // TODO determine Custom username
             default:
               this.userName = 'default';
           }
         }
+        else
+          this.userName = "Login";
       },
 
       // old template stuff...

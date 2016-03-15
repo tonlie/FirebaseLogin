@@ -14,6 +14,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../firebase-element/firebase-auth.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+
+<!--
+  Firebase E-Mail&Password functionality
+-->
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../gold-email-input/gold-email-input.html">
+<link rel="import" href="../paper-input/paper-input.html">
 
 <!--
 An element that creates a login menu for firebase.
@@ -111,11 +122,67 @@ Example (TODO):
         <paper-item id="loginMenuFacebook" on-click="login" hidden$="[[statusKnown]]">Login with Facebook</paper-item>
         <paper-item id="loginMenuGoogle" on-click="login" hidden$="[[statusKnown]]">Login with Google</paper-item>
         <paper-item id="loginMenuGithub" on-click="login" hidden$="[[statusKnown]]">Login with Github</paper-item>
-        <paper-item id="loginMenuTwitter" on-click="login" hidden$="[[statusKnown]]">Login with Facebook</paper-item>
-        <paper-item id="loginMenuEmailPass" on-click="login" hidden$="[[statusKnown]]">Login with Firebases own E-Mail&Password</paper-item>
+        <paper-item id="loginMenuTwitter" on-click="login" hidden$="[[statusKnown]]">Login with Twitter</paper-item>
+        <paper-item id="loginMenuEmailPass" on-click="openLoginPassDiag" hidden$="[[statusKnown]]">Login with Firebases own E-Mail&Password</paper-item>
         <paper-item id="loginMenuLogout" on-click="logout" hidden$="[[!statusKnown]]">Logout</paper-item>
       </paper-menu>
     </paper-menu-button>
+
+    <!--
+      Firebase Login & Password
+    -->
+    <paper-dialog id="loginPassDialog">
+      <h2>Login/Register account</h2>
+      <paper-tabs selected="{{loginPassDiagSelected}}">
+        <paper-tab>Login</paper-tab>
+        <paper-tab>Register</paper-tab>
+      </paper-tabs>
+      <paper-dialog-scrollable>
+        <iron-pages selected="{{loginPassDiagSelected}}">
+          <section id="divLogin">
+            <gold-email-input id="inputLoginEmail" value="abc@example.com" label="E-Mail" required auto-validate></gold-email-input>
+            <paper-input id="inputLoginPass" label="Password" type="password" required auto-validate error-message="Empty input!"></paper-input>
+            <div class="buttons">
+              <paper-button dialog-confirm autofocus on-click="mailPassLogin">Login</paper-button>
+              <paper-button on-click="mailPassForgotPW">Forgot Password</paper-button>
+              <paper-button dialog-dismiss>Close</paper-button>
+            </div>
+          </section>
+          <section id="divRegister">
+            <gold-email-input id="inputRegEmail" value="abc@example.com" label="E-Mail" required auto-validate></gold-email-input>
+            <paper-input id="inputRegPass" value="abc" label="Password" type="password" required auto-validate error-message="Empty input!"></paper-input>
+            <div class="buttons">
+              <paper-button dialog-confirm autofocus on-click="mailPassRegister">Register</paper-button>
+              <paper-button dialog-dismiss>Close</paper-button>
+            </div>
+          </section>
+        </iron-pages>
+      </paper-dialog-scrollable>
+    </paper-dialog>
+
+    <!-- Reset password dialog -->
+    <paper-dialog id="resetPassDialog" modal>
+      <h2>Reset password</h2>
+      <paper-dialog-scrollable>
+        <paper-input id="oldPassInput" label="Old password" type="password" required auto-validate error-message="Empty input!"></paper-input>
+        <paper-input id="newPassInput" label="New password" type="password" required auto-validate error-message="Empty input!"></paper-input>
+        <div class="buttons">
+          <paper-button dialog-confirm autofocus on-click="mailPassReset">Save</paper-button>
+          <paper-button dialog-dismiss>Cancel</paper-button>
+        </div>
+      </paper-dialog-scrollable>
+    </paper-dialog>
+
+    <!-- toast messages -->
+    <paper-toast id="toastLoggedIn" text="Logged in!"></paper-toast>
+    <paper-toast id="toastLoggedOut" text="Logged out!"></paper-toast>
+    <paper-toast id="toastLoggedInError" text="Login failed!"></paper-toast>
+    <paper-toast id="toastUserCreated" text="User created successfully!"></paper-toast>
+    <paper-toast id="toastUserCreatedError" text="Error creating user!"></paper-toast>
+    <paper-toast id="toastMailSent" text="Password reset mail sent!"></paper-toast>
+    <paper-toast id="toastMailSentError" text="Password reset mail NOT sent!"></paper-toast>
+    <paper-toast id="toastPassReset" text="Password reset successfull!"></paper-toast>
+    <paper-toast id="toastPassResetError" text="Password reset failed!"></paper-toast>
   </template>
 
   <script>
@@ -185,6 +252,11 @@ Example (TODO):
         firebaseURL: String,
 
         /**
+         * Firebase reference
+         */
+        firebaseRef: Object,
+
+        /**
          * Describes the author of the element, but is really just an excuse to
          * show off JSDoc annotations.
          *
@@ -226,6 +298,9 @@ Example (TODO):
 
         this.checkMenueItemsAndUsername();
         this.firebaseURL = 'https://polytodo.firebaseio.com/';
+
+        // set Login tab as standard
+        this.loginPassDiagSelected = 0;
       },
 
       attached: function() {
@@ -269,10 +344,10 @@ Example (TODO):
         {
           this.firebaseProvider = 'twitter';
         }
-        else if (event.srcElement.id.includes("mailPass"))
-        {
-          this.firebaseProvider = 'password';
-        }
+        // else if (event.srcElement.id.includes("mailPass"))
+        // {
+        //   this.firebaseProvider = 'password';
+        // }
         else if (event.srcElement.id.includes("Custom"))
         {
           this.firebaseProvider = 'custom';
@@ -295,7 +370,9 @@ Example (TODO):
         this.statusKnown = true;
         // set correct username
         this.checkMenueItemsAndUsername();
-        this.ref = new Firebase(this.firebaseURL + '/user/' + event.detail.user.uid);
+        this.firebaseRef = new Firebase(this.firebaseURL + '/user/' + event.detail.user.uid);
+        document.getElementById("toastLoggedIn").open();
+
         //this.ref.on('value', function(snapshot) {
         //  app.updateItems(snapshot);
         //});
@@ -312,10 +389,11 @@ Example (TODO):
 
         this.statusKnown = false;
         this.checkMenueItemsAndUsername();
+        document.getElementById("toastLoggedOut").open();
       },
 
       /**
-       * Hides unused login types from login menue
+       * Hides unused login types from login menu
        *
        * Additionally used to adjust Username/Login/Logout String
        * on the button.
@@ -323,12 +401,16 @@ Example (TODO):
       checkMenueItemsAndUsername: function() {
         // hide deactivated login methods
         if(!this.statusKnown) {
+          if(!this.facebook)
+            document.getElementById('loginMenuFacebook').setAttribute('hidden', true);
           if(!this.google)
-            document.getElementById('loginMenueGoogle').setAttribute('hidden', true);
+            document.getElementById('loginMenuGoogle').setAttribute('hidden', true);
+          if(!this.twitter)
+            document.getElementById('loginMenuTwitter').setAttribute('hidden', true);
           if(!this.github)
-            document.getElementById('loginMenueGithub').setAttribute('hidden', true);
+            document.getElementById('loginMenuGithub').setAttribute('hidden', true);
           if(!this.custom)
-            document.getElementById('loginMenueCustom').setAttribute('hidden', true);
+            document.getElementById('loginMenuCustom').setAttribute('hidden', true);
         }
 
         // name functionality
@@ -340,6 +422,9 @@ Example (TODO):
             case 'github':
               this.userName = this.user.github.username;
               break;
+            case 'password':
+              this.userName = this.user.password.email.split("@")[0];
+              break;
             // TODO determine Custom username
             default:
               this.userName = 'default';
@@ -347,6 +432,94 @@ Example (TODO):
         }
         else
           this.userName = "Login";
+      },
+
+      /**
+       * Function for LoginPassDiag
+       */
+      openLoginPassDiag: function() {
+        this.$.menuButton.close();
+
+        this.firebaseProvider = "password";
+        this.$.loginPassDialog.open();
+      },
+
+      /**
+       * Login function for firebases mail & password provider
+       */
+      mailPassLogin: function() {
+        if(this.$.inputLoginEmail.validate() &&
+           this.$.inputLoginPass.value.length > 0) {
+          this.firebaseRef = new Firebase(this.firebaseURL);
+          this.firebaseRef.authWithPassword({
+            email: this.$.inputLoginEmail.value,
+            password: this.$.inputLoginPass.value
+          }, function(error, authData) {
+            if(error) {
+              document.getElementById("toastLoggedInError").open();
+            } else {
+              this.statusKnown = true;
+              document.getElementById("toastLoggedIn").open();
+
+              // if temporary password, make user chosse a new one
+              if(authData.password.isTemporaryPassword) {
+                document.getElementById("resetPassDialog").open();
+              }
+            }
+          });
+        }
+      },
+
+      mailPassForgotPW: function() {
+        if(this.$.inputRegEmail.validate()) {
+          this.firebaseRef = new Firebase(this.firebaseURL);
+          this.firebaseRef.resetPassword({
+            email: this.$.inputRegEmail.value
+          }, function(error) {
+            if(error) {
+              document.getElementById("toastMailSentError").open();
+            } else {
+              document.getElementById("toastMailSent").open();
+            }
+          });
+        }
+      },
+
+     /**
+      * Function to register a user for firebases mail & passwort provider
+      */
+      mailPassRegister: function() {
+        if(this.$.inputRegEmail.validate() &&
+           this.$.inputRegPass.value.length > 0) {
+          this.firebaseRef = new Firebase(this.firebaseURL);
+          this.firebaseRef.createUser({
+            email: this.$.inputRegEmail.value,
+            password: this.$.inputRegPass.value
+          }, function(error, userData) {
+            if(error) {
+              document.getElementById("toastUserCreatedError").open();
+            } else {
+              document.getElementById("toastUserCreated").open();
+            }
+          });
+        }
+      },
+
+      mailPassReset: function() {
+        if(this.$.oldPassInput.value.length > 0 &&
+           this.$.newPassInput.value.length > 0) {
+          this.firebaseRef.changePassword({
+            email: this.user.password.email,
+            oldPassword: this.$.oldPassInput.value,
+            newPassword: this.$.newPassInput.value
+          }, function(error) {
+            if(error) {
+              document.getElementById("toastPassResetError").open();
+            } else {
+              document.getElementById("toastPassReset").open();
+            }
+          });
+        }
       },
 
       // old template stuff...

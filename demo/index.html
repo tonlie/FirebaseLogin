@@ -17,38 +17,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../firebase-login.html">
   </head>
   <body unresolved>
-
-    <p>An example of <code>&lt;firebase-login&gt;</code>:</p>
-
-    <p>Make words! <button id="saybtn">Say Something</button></p>
-    <p>Make lasers! <button id="laserbtn">Fire lasers</button></p>
-
     <firebase-login
-      author='{"name": "Lord Meowser", "image": "http://lorempixel.com/g/300/200/cats/"}'
-      fancy
+      auto-login
+      redirect
+      facebook
       google
-      github
-      custom
+      mail-pass
       firebase-url='https://polytodo.firebaseio.com/'>
-      <h2>Hello firebase-login</h2>
     </firebase-login>
-
-    <script>
-      var seedElement = document.querySelector('firebase-login');
-
-      document.querySelector('#saybtn').addEventListener('click', function() {
-        alert(seedElement.sayHello('Hallo!'));
-      });
-
-      document.querySelector('#laserbtn').addEventListener('click', function() {
-        seedElement.fireLasers();
-      });
-
-      document.addEventListener("firebase-login-lasers", function(e) {
-        console.log(e.detail.sound);
-      });
-
-    </script>
-
   </body>
 </html>

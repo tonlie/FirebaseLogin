@@ -29,81 +29,93 @@ Firebase E-Mail&Password functionality
 <!--
 An element that creates a login menu for firebase.
 Includes a `<paper-menu-button>`, encapsulating a `<firebase-auth>` element and
-some additional functionality.
+some additional functionality regarding Firebase's own e-mail and password based
+login provider.
 Built to work extra great in `<paper-header-panel>`'s.
 
-Example (TODO):
-
-<firebase-login></firebase-login>
-
-Example (TODO):
-
-<firebase-login>
-<h2>Hello firebase-login</h2>
+Example:
+```html
+<firebase-login
+auto-login
+redirect
+google
+mail-pass
+firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
 </firebase-login>
-
+```
 @demo demo/index.html
-@hero hero.svg
 -->
 
 <dom-module id="firebase-login">
   <template>
-  <style>
+  <style is="custom-style">
   :host {
     display: block;
     box-sizing: border-box;
     font-family: Roboto, sans-serif;
-    background-color: #818181;
-  }
+    /*background-color: #818181;*/
 
-  .author img {
-    display: block;
-    float: left;
-    margin-right: 5px;
-    max-height: 100px;
-    max-width: 100px;
-  }
+    --paper-dialog-button-color: #448AFF;
+    --paper-dialog: {
+      background-color: #FFF;
+    };
 
+    --paper-tabs: {
+      background-color: #448AFF;
+      color: #FFF;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    };
+  }
   :host paper-item {
     display: block;
     font-size: 10pt;
     color: #333;
-    margin: 5px;
+    padding: 5px;
     cursor: pointer;
   }
   :host paper-item:hover {
-    background: #4ff28e;
+    background: #448AFF;
+    color: #FFF;
   }
-
   :host paper-button {
     cursor:pointer;
   }
-  :host paper-menu-button:hover {
-    background: #4ff28e;
+  :host paper-menu {
+    display: block;
+  }
+  :host paper-menu-button {
+    /*margin: 2px;*/
+    padding: 0px;
+    background: #448AFF;
+    color: #FFF;
+  }
+  :host > .paper-dialog-0 > * {
+    margin-top: 0px;
+    padding: 0px;
+  };
+  .success {
+    background-color: #4CAF50;
+  }
+  .error {
+    background-color: #FF5252;
   }
   </style>
 
-  <h1>&lt;firebase-login&gt;</h1>
-  <content></content>
-  <p class="author">
-    <img src$="{{author.image}}">
-    Cheers,<br/>
-    <span class="name">{{author.name}}</span>
-  </p>
-  <br>
+  <!-- <h1>&lt;firebase-login&gt;</h1>
   <p>
+    <br>firebaseUrl: [[firebaseUrl]]
     <br>statusKnown: [[statusKnown]]
     <br>LoginProvider: [[firebaseProvider]]
     <br>User: [[user]]
-  </p>
+  </p> -->
 
   <!-- my stuff-->
   <firebase-auth
   id="baseLogin"
-
   user={{user}}
   statusKnown={{statusKnown}}
-  location="[[firebaseURL]]"
+  location="[[firebaseUrl]]"
   provider="[[firebaseProvider]]"
   on-error="onFirebaseError"
   on-login="onFirebaseLogin">
@@ -123,7 +135,7 @@ Example (TODO):
       <paper-item id="loginMenuGoogle" on-click="login" hidden$="[[statusKnown]]">Login with Google</paper-item>
       <paper-item id="loginMenuGithub" on-click="login" hidden$="[[statusKnown]]">Login with Github</paper-item>
       <paper-item id="loginMenuTwitter" on-click="login" hidden$="[[statusKnown]]">Login with Twitter</paper-item>
-      <paper-item id="loginMenuEmailPass" on-click="openLoginPassDiag" hidden$="[[statusKnown]]">Login with Firebases own E-Mail&Password</paper-item>
+      <paper-item id="loginMenuEmailPass" on-click="openLoginPassDiag" hidden$="[[statusKnown]]">Login with E-Mail&Password</paper-item>
       <paper-item id="loginMenuLogout" on-click="logout" hidden$="[[!statusKnown]]">Logout</paper-item>
     </paper-menu>
   </paper-menu-button>
@@ -132,7 +144,7 @@ Example (TODO):
   Firebase Login & Password
   -->
   <paper-dialog id="loginPassDialog">
-    <h2>Login/Register account</h2>
+    <!-- <h2>Login/Register account</h2> -->
     <paper-tabs selected="{{loginPassDiagSelected}}">
       <paper-tab>Login</paper-tab>
       <paper-tab>Register</paper-tab>
@@ -144,8 +156,10 @@ Example (TODO):
           <paper-input id="inputLoginPass" label="Password" type="password" required auto-validate error-message="Empty input!"></paper-input>
           <div class="buttons">
             <paper-button dialog-confirm autofocus on-click="mailPassLogin">Login</paper-button>
-            <paper-button on-click="mailPassForgotPW">Forgot Password</paper-button>
             <paper-button dialog-dismiss>Close</paper-button>
+          </div>
+          <div class="buttons">
+            <paper-button on-click="mailPassForgotPW">Forgot Password</paper-button>
           </div>
         </section>
         <section id="divRegister">
@@ -162,7 +176,7 @@ Example (TODO):
 
   <!-- Reset password dialog -->
   <paper-dialog id="resetPassDialog" modal>
-    <h2>Reset password</h2>
+    <h3>Reset password</h3>
     <paper-dialog-scrollable>
       <paper-input id="oldPassInput" label="Old password" type="password" required auto-validate error-message="Empty input!"></paper-input>
       <paper-input id="newPassInput" label="New password" type="password" required auto-validate error-message="Empty input!"></paper-input>
@@ -174,15 +188,15 @@ Example (TODO):
   </paper-dialog>
 
   <!-- toast messages -->
-  <paper-toast id="toastLoggedIn" text="Logged in!"></paper-toast>
-  <paper-toast id="toastLoggedOut" text="Logged out!"></paper-toast>
-  <paper-toast id="toastLoggedInError" text="Login failed!"></paper-toast>
-  <paper-toast id="toastUserCreated" text="User created successfully!"></paper-toast>
-  <paper-toast id="toastUserCreatedError" text="Error creating user!"></paper-toast>
-  <paper-toast id="toastMailSent" text="Password reset mail sent!"></paper-toast>
-  <paper-toast id="toastMailSentError" text="Password reset mail NOT sent!"></paper-toast>
-  <paper-toast id="toastPassReset" text="Password reset successfull!"></paper-toast>
-  <paper-toast id="toastPassResetError" text="Password reset failed!"></paper-toast>
+  <paper-toast id="toastLoggedIn" class="success" text="Logged in!"></paper-toast>
+  <paper-toast id="toastLoggedOut" class="success" text="Logged out!"></paper-toast>
+  <paper-toast id="toastLoggedInError" class="error" text="Login failed!"></paper-toast>
+  <paper-toast id="toastUserCreated" class="success" text="User created successfully!"></paper-toast>
+  <paper-toast id="toastUserCreatedError" class="error"text="Error creating user!"></paper-toast>
+  <paper-toast id="toastMailSent" class="success" text="Password reset mail sent!"></paper-toast>
+  <paper-toast id="toastMailSentError" class="error" text="Password reset mail NOT sent!"></paper-toast>
+  <paper-toast id="toastPassReset" class="success" text="Password reset successfull!"></paper-toast>
+  <paper-toast id="toastPassResetError" class="error" text="Password reset failed!"></paper-toast>
   </template>
 
   <script>
@@ -233,11 +247,11 @@ Example (TODO):
       /**
       * `custom` enables custom authentication provider
       */
-      custom: {
-        type: Boolean,
-        value: false,
-        notify: true
-      },
+      // custom: {
+      //   type: Boolean,
+      //   value: false,
+      //   notify: true
+      // },
       /**
       * `statusKnown` determines, whether there is a user logged in
       */
@@ -247,39 +261,30 @@ Example (TODO):
         notifiy: true
       },
       /**
-      * `firebaseURL` contains the URL to the firebase instance
+      * `firebaseUrl` contains the URL to the firebase instance
       */
-      firebaseURL: String,
+      firebaseUrl: String,
 
       /**
-      * Firebase reference
+      * Firebase reference object
       */
       firebaseRef: Object,
 
       /**
-      * Describes the author of the element, but is really just an excuse to
-      * show off JSDoc annotations.
-      *
-      * @type {{name: string, image: string}}
+      * Should login try redirect, see firebase-element
       */
-      author: {
-        type: Object,
-        // Use `value` to provide a default value for a property, by setting it
-        // on your element's prototype.
-        //
-        // If you provide a function, as we do here, Polymer will call that
-        // _per element instance_.
-        //
-        // We do that to ensure that each element gets its own copy of the
-        // value, rather than having it shared across all instances (via the
-        // prototype).
-        value: function() {
-          return {
-            name:  'Toni L. (Dimitri Glazkov)',
-            image: 'http://addyosmani.com/blog/wp-content/uploads/2013/04/unicorn.jpg',
-          };
-        }
+      redirect: {
+        type: Boolean,
+        value: false
       },
+
+      /**
+      * Activate automatic login, see firebase-element
+      */
+      autoLogin: {
+        type: Boolean,
+        value: false
+      }
     },
 
     // Element Lifecycle
@@ -292,12 +297,17 @@ Example (TODO):
       // This is the point where you should make modifications to the DOM (when
       // necessary), or kick off any processes the element wants to perform.
 
+      // set options for basic firebase login
+      if(this.autoLogin)
+        this.$.baseLogin.autoLogin = true;
+      if(this.redirect)
+        this.$.baseLogin.redirect = true;
+
       // Set basic username a.k.a. Login-Button text
       if(!this.statusKnown)
-      this.userName = "Login";
+        this.userName = "Login";
 
       this.checkMenueItemsAndUsername();
-      this.firebaseURL = 'https://polytodo.firebaseio.com/';
 
       // set Login tab as standard
       this.loginPassDiagSelected = 0;
@@ -322,8 +332,7 @@ Example (TODO):
     // Element Behavior
 
     /**
-    * Login function for the google authentication.
-    * <br>TODO: Make one function for all providers...
+    * Convenience login function.
     */
     login: function(event) {
       this.$.menuButton.close();
@@ -344,14 +353,10 @@ Example (TODO):
       {
         this.firebaseProvider = 'twitter';
       }
-      // else if (event.srcElement.id.includes("mailPass"))
+      // else if (event.srcElement.id.includes("Custom"))
       // {
-      //   this.firebaseProvider = 'password';
+      //   this.firebaseProvider = 'custom';
       // }
-      else if (event.srcElement.id.includes("Custom"))
-      {
-        this.firebaseProvider = 'custom';
-      }
       else {
         // last resort/fallback
         this.firebaseProvider = 'google';
@@ -370,12 +375,8 @@ Example (TODO):
       this.statusKnown = true;
       // set correct username
       this.checkMenueItemsAndUsername();
-      this.firebaseRef = new Firebase(this.firebaseURL + '/user/' + event.detail.user.uid);
+      this.firebaseRef = new Firebase(this.firebaseUrl + '/user/' + event.detail.user.uid);
       document.getElementById("toastLoggedIn").open();
-
-      //this.ref.on('value', function(snapshot) {
-      //  app.updateItems(snapshot);
-      //});
     },
 
     /**
@@ -383,13 +384,20 @@ Example (TODO):
     * regarding the login menue and the username.
     */
     logout: function() {
-      // deactivated for offline testing -> To be tested!
       this.$.menuButton.close();
       this.$.baseLogin.logout();
 
       this.statusKnown = false;
       this.checkMenueItemsAndUsername();
       document.getElementById("toastLoggedOut").open();
+    },
+
+    /**
+    * If connection to Firebase fails, show error toast
+    */
+    onFirebaseError: function(event) {
+      document.getElementById('toastLoggedInError').text('Login failed! ' + event.detail.message);
+      document.getElementById('toastLoggedInError').open();
     },
 
     /**
@@ -409,13 +417,18 @@ Example (TODO):
         document.getElementById('loginMenuTwitter').setAttribute('hidden', true);
         if(!this.github)
         document.getElementById('loginMenuGithub').setAttribute('hidden', true);
-        if(!this.custom)
-        document.getElementById('loginMenuCustom').setAttribute('hidden', true);
+        if(!this.mailPass)
+        document.getElementById('loginMenuEmailPass').setAttribute('hidden', true);
+        // if(!this.custom)
+        // document.getElementById('loginMenuCustom').setAttribute('hidden', true);
       }
 
       // name functionality
       if(this.user) {
         switch (this.user.provider) {
+          case 'facebook':
+          this.userName = this.user.facebook.displayName;
+          break;
           case 'google':
           this.userName = this.user.google.displayName;
           break;
@@ -425,7 +438,7 @@ Example (TODO):
           case 'password':
           this.userName = this.user.password.email.split("@")[0];
           break;
-          // TODO determine Custom username
+          // TODO determine facebook, twitter usernames
           default:
           this.userName = 'default';
         }
@@ -450,7 +463,9 @@ Example (TODO):
     mailPassLogin: function() {
       if(this.$.inputLoginEmail.validate() &&
       this.$.inputLoginPass.value.length > 0) {
-        this.firebaseRef = new Firebase(this.firebaseURL);
+        if(!this.firebaseRef)
+          this.firebaseRef = new Firebase(this.firebaseUrl);
+
         this.firebaseRef.authWithPassword({
           email: this.$.inputLoginEmail.value,
           password: this.$.inputLoginPass.value
@@ -458,9 +473,6 @@ Example (TODO):
           if(error) {
             document.getElementById("toastLoggedInError").open();
           } else {
-            this.statusKnown = true;
-            document.getElementById("toastLoggedIn").open();
-
             // if temporary password, make user chosse a new one
             if(authData.password.isTemporaryPassword) {
               document.getElementById("resetPassDialog").open();
@@ -470,9 +482,14 @@ Example (TODO):
       }
     },
 
+    /**
+    * Function to send password-forgot-mail
+    */
     mailPassForgotPW: function() {
       if(this.$.inputRegEmail.validate()) {
-        this.firebaseRef = new Firebase(this.firebaseURL);
+        if(!this.firebaseRef)
+          this.firebaseRef = new Firebase(this.firebaseUrl);
+
         this.firebaseRef.resetPassword({
           email: this.$.inputRegEmail.value
         }, function(error) {
@@ -486,12 +503,14 @@ Example (TODO):
     },
 
     /**
-    * Function to register a user for firebases mail & passwort provider
+    * Function to register a user for firebase mail & passwort provider
     */
     mailPassRegister: function() {
       if(this.$.inputRegEmail.validate() &&
       this.$.inputRegPass.value.length > 0) {
-        this.firebaseRef = new Firebase(this.firebaseURL);
+        if(!this.firebaseRef)
+          this.firebaseRef = new Firebase(this.firebaseURL);
+
         this.firebaseRef.createUser({
           email: this.$.inputRegEmail.value,
           password: this.$.inputRegPass.value
@@ -505,9 +524,13 @@ Example (TODO):
       }
     },
 
+    /**
+    * Function to reset the password
+    */
     mailPassReset: function() {
       if(this.$.oldPassInput.value.length > 0 &&
-        this.$.newPassInput.value.length > 0) {
+         this.$.newPassInput.value.length > 0) {
+
           this.firebaseRef.changePassword({
             email: this.user.password.email,
             oldPassword: this.$.oldPassInput.value,
@@ -520,36 +543,6 @@ Example (TODO):
             }
           });
         }
-      },
-
-      // old template stuff...
-
-      /**
-      * Sometimes it's just nice to say hi.
-      *
-      * @param {string} greeting A positive greeting.
-      * @return {string} The full greeting.
-      */
-      sayHello: function(greeting) {
-        var response = greeting || 'Hello World!';
-        return 'firebase-login says, ' + response;
-      },
-
-      /**
-      * The `firebase-login-lasers` event is fired whenever `fireLasers` is called.
-      *
-      * @event firebase-login-lasers
-      * @detail {{sound: String}}
-      */
-
-      /**
-      * Attempt to destroy this element's enemies with a beam of light!
-      *
-      * Or, at least, dispatch an event in the vain hope that someone else will
-      * do the zapping.
-      */
-      fireLasers: function() {
-        this.fire('firebase-login-lasers', {sound: 'Pew pew!'});
       }
     });
   </script>

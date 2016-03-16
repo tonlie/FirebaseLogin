@@ -53,7 +53,6 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
     display: block;
     box-sizing: border-box;
     font-family: Roboto, sans-serif;
-    /*background-color: #818181;*/
 
     --paper-dialog-button-color: #448AFF;
     --paper-dialog: {
@@ -102,15 +101,6 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
   }
   </style>
 
-  <!-- <h1>&lt;firebase-login&gt;</h1>
-  <p>
-    <br>firebaseUrl: [[firebaseUrl]]
-    <br>statusKnown: [[statusKnown]]
-    <br>LoginProvider: [[firebaseProvider]]
-    <br>User: [[user]]
-  </p> -->
-
-  <!-- my stuff-->
   <firebase-auth
   id="baseLogin"
   user={{user}}
@@ -245,14 +235,6 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
         notify: true
       },
       /**
-      * `custom` enables custom authentication provider
-      */
-      // custom: {
-      //   type: Boolean,
-      //   value: false,
-      //   notify: true
-      // },
-      /**
       * `statusKnown` determines, whether there is a user logged in
       */
       statusKnown: {
@@ -288,15 +270,7 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
     },
 
     // Element Lifecycle
-
     ready: function() {
-      // `ready` is called after all elements have been configured, but
-      // propagates bottom-up. This element's children are ready, but parents
-      // are not.
-      //
-      // This is the point where you should make modifications to the DOM (when
-      // necessary), or kick off any processes the element wants to perform.
-
       // set options for basic firebase login
       if(this.autoLogin)
         this.$.baseLogin.autoLogin = true;
@@ -313,24 +287,7 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
       this.loginPassDiagSelected = 0;
     },
 
-    attached: function() {
-      // `attached` fires once the element and its parents have been inserted
-      // into a document.
-      //
-      // This is a good place to perform any work related to your element's
-      // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-    },
-
-    detached: function() {
-      // The analog to `attached`, `detached` fires when the element has been
-      // removed from a document.
-      //
-      // Use this to clean up anything you did in `attached`.
-    },
-
     // Element Behavior
-
     /**
     * Convenience login function.
     */
@@ -353,10 +310,6 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
       {
         this.firebaseProvider = 'twitter';
       }
-      // else if (event.srcElement.id.includes("Custom"))
-      // {
-      //   this.firebaseProvider = 'custom';
-      // }
       else {
         // last resort/fallback
         this.firebaseProvider = 'google';
@@ -410,41 +363,39 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
       // hide deactivated login methods
       if(!this.statusKnown) {
         if(!this.facebook)
-        document.getElementById('loginMenuFacebook').setAttribute('hidden', true);
+          document.getElementById('loginMenuFacebook').setAttribute('hidden', true);
         if(!this.google)
-        document.getElementById('loginMenuGoogle').setAttribute('hidden', true);
+          document.getElementById('loginMenuGoogle').setAttribute('hidden', true);
         if(!this.twitter)
-        document.getElementById('loginMenuTwitter').setAttribute('hidden', true);
+          document.getElementById('loginMenuTwitter').setAttribute('hidden', true);
         if(!this.github)
-        document.getElementById('loginMenuGithub').setAttribute('hidden', true);
+          document.getElementById('loginMenuGithub').setAttribute('hidden', true);
         if(!this.mailPass)
-        document.getElementById('loginMenuEmailPass').setAttribute('hidden', true);
-        // if(!this.custom)
-        // document.getElementById('loginMenuCustom').setAttribute('hidden', true);
+          document.getElementById('loginMenuEmailPass').setAttribute('hidden', true);
       }
 
       // name functionality
       if(this.user) {
         switch (this.user.provider) {
           case 'facebook':
-          this.userName = this.user.facebook.displayName;
+            this.userName = this.user.facebook.displayName;
           break;
           case 'google':
-          this.userName = this.user.google.displayName;
+            this.userName = this.user.google.displayName;
           break;
           case 'github':
-          this.userName = this.user.github.username;
+            this.userName = this.user.github.username;
           break;
           case 'password':
-          this.userName = this.user.password.email.split("@")[0];
+            this.userName = this.user.password.email.split("@")[0];
           break;
-          // TODO determine facebook, twitter usernames
+          // TODO determine twitter username
           default:
-          this.userName = 'default';
+            this.userName = 'default';
         }
       }
       else
-      this.userName = "Login";
+        this.userName = "Login";
     },
 
     /**

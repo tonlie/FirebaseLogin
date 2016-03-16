@@ -362,15 +362,15 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
     checkMenueItemsAndUsername: function() {
       // hide deactivated login methods
       if(!this.statusKnown) {
-        if(!this.facebook)
+        if(!this.facebook && document.getElementById('loginMenuFacebook') != null)
           document.getElementById('loginMenuFacebook').setAttribute('hidden', true);
-        if(!this.google)
+        if(!this.google && document.getElementById('loginMenuGoogle') != null)
           document.getElementById('loginMenuGoogle').setAttribute('hidden', true);
-        if(!this.twitter)
+        if(!this.twitter && document.getElementById('loginMenuTwitter') != null)
           document.getElementById('loginMenuTwitter').setAttribute('hidden', true);
-        if(!this.github)
+        if(!this.github && document.getElementById('loginMenuGithub') != null)
           document.getElementById('loginMenuGithub').setAttribute('hidden', true);
-        if(!this.mailPass)
+        if(!this.mailPass && document.getElementById('loginMenuEmailPass') != null)
           document.getElementById('loginMenuEmailPass').setAttribute('hidden', true);
       }
 

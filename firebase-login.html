@@ -43,6 +43,21 @@ mail-pass
 firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
 </firebase-login>
 ```
+
+### Styling
+The following custom properties and mixins are also available for styling:
+Custom property | Description | Default
+----------------|-------------|----------
+`--firebase-login-button-background` | Background color of the paper-menu-button | `--accent-color`
+`--firebase-login-button-text` | Text color of the paper-menu-button | `--text-primary-color`
+`--firebase-login-menu-item-hover-background` | Background color of the paper-menu-button (e.g. 'Login with Google') | `--accent-color`
+`--firebase-login-menu-item-hover-text` | Text color of the paper-menu-items (e.g. 'Login with Google') | `--text-primary-color`
+`--firebase-login-dialog-tabs-background-color` | Background color of the paper-tabs in e-mail and password provider dialog | `--accent-color`
+`--firebase-login-dialog-tabs-text-color` | Text color of the paper-tabs in e-mail and password provider dialog | `--text-primary-color`
+`--firebase-login-dialog-button-text-color` | Text color of the paper-buttons in e-mail and password provider dialog | `--accent-color`
+`--firebase-login-toast-success-background` | Background color of the successfull toast messages | `#4CAF50`
+`--firebase-login-toast-error-background` | Background color of the unsuccessfull toast messages | `#FF5252`
+
 @demo demo/index.html
 -->
 
@@ -54,14 +69,11 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
     box-sizing: border-box;
     font-family: Roboto, sans-serif;
 
-    --paper-dialog-button-color: #448AFF;
-    --paper-dialog: {
-      background-color: #FFF;
-    };
+    --paper-dialog-button-color: var(--firebase-login-dialog-button-text-color, --accent-color);
 
     --paper-tabs: {
-      background-color: #448AFF;
-      color: #FFF;
+      background-color: var(--firebase-login-dialog-tabs-background-color, --accent-color);
+      color: var(--firebase-login-dialog-tabs-text-color, --text-primary-color);
       margin-top: 0px;
       margin-bottom: 0px;
     };
@@ -74,8 +86,8 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
     cursor: pointer;
   }
   :host paper-item:hover {
-    background: #448AFF;
-    color: #FFF;
+    background: var(--firebase-login-menu-item-hover-background, --accent-color);
+    color: var(--firebase-login-menu-item-hover-text, --text-primary-color);
   }
   :host paper-button {
     cursor:pointer;
@@ -84,20 +96,19 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
     display: block;
   }
   :host paper-menu-button {
-    /*margin: 2px;*/
     padding: 0px;
-    background: #448AFF;
-    color: #FFF;
+    background: var(--firebase-login-button-background, --accent-color);
+    color: var(--firebase-login-button-text, --text-primary-color);
   }
   :host > .paper-dialog-0 > * {
     margin-top: 0px;
     padding: 0px;
   };
   .success {
-    background-color: #4CAF50;
+    background-color: var(--firebase-login-toast-success-background, #4CAF50);
   }
   .error {
-    background-color: #FF5252;
+    background-color: var(--firebase-login-toast-error-background, #FF5252);
   }
   </style>
 
@@ -175,7 +186,7 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
 
   <!-- toast messages -->
   <paper-toast id="toastLoggedIn" class="success" text="Logged in!"></paper-toast>
-  <paper-toast id="toastLoggedOut" class="success" text="Logged out!"></paper-toast>
+  <paper-toast id="toastLoggedOut" text="Logged out!"></paper-toast>
   <paper-toast id="toastLoggedInError" class="error" text="Login failed!"></paper-toast>
   <paper-toast id="toastUserCreated" class="success" text="User created successfully!"></paper-toast>
   <paper-toast id="toastUserCreatedError" class="error"text="Error creating user!"></paper-toast>
@@ -277,10 +288,12 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
       if(!this.statusKnown)
         this.userName = "Login";
 
-      this.checkMenueItemsAndUsername();
-
       // set Login tab as standard
       this.loginPassDiagSelected = 0;
+    },
+
+    attached: function() {
+      this.checkMenueItemsAndUsername();
     },
 
     // Element Behavior

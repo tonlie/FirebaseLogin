@@ -20,7 +20,7 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
 ## Styling
 The following custom properties are also available for styling:
 | Custom property | Description | Default |
-|----------------|-------------|----------|
+| --- | --- | --- |
 | `--firebase-login-button-background` | Background color of the paper-menu-button | `--accent-color` |
 | `--firebase-login-button-text` | Text color of the paper-menu-button | `--text-primary-color` |
 | `--firebase-login-menu-item-hover-background` | Background color of the paper-menu-button (e.g. 'Login with Google') | `--accent-color` |

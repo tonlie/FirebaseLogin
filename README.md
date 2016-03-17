@@ -15,10 +15,10 @@ mail-pass
 firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
 </firebase-login>
 ```
-@demo demo/index.html
 
-## Styling
+### Styling
 The following custom properties are also available for styling:
+
 | Custom property | Description | Default |
 | --- | --- | --- |
 | `--firebase-login-button-background` | Background color of the paper-menu-button | `--accent-color` |
@@ -30,7 +30,6 @@ The following custom properties are also available for styling:
 | `--firebase-login-dialog-button-text-color` | Text color of the paper-buttons in e-mail and password provider dialog | `--accent-color` |
 | `--firebase-login-toast-success-background` | Background color of the successfull toast messages | `#4CAF50` |
 | `--firebase-login-toast-error-background` | Background color of the unsuccessfull toast messages | `#FF5252` |
-
 
 ### Dependencies
 

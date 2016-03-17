@@ -47,7 +47,7 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
 ### Styling
 The following custom properties and mixins are also available for styling:
 Custom property | Description | Default
-----------------|-------------|----------
+--- | --- | ---
 `--firebase-login-button-background` | Background color of the paper-menu-button | `--accent-color`
 `--firebase-login-button-text` | Text color of the paper-menu-button | `--text-primary-color`
 `--firebase-login-menu-item-hover-background` | Background color of the paper-menu-button (e.g. 'Login with Google') | `--accent-color`
@@ -118,8 +118,8 @@ Custom property | Description | Default
   statusKnown={{statusKnown}}
   location="[[firebaseUrl]]"
   provider="[[firebaseProvider]]"
-  on-error="onFirebaseError"
-  on-login="onFirebaseLogin">
+  on-error="_onFirebaseError"
+  on-login="_onFirebaseLogin">
   </firebase-auth>
 
   <paper-menu-button id="menuButton">
@@ -128,12 +128,12 @@ Custom property | Description | Default
       [[userName]]
     </paper-button>
     <paper-menu class="dropdown-content">
-      <paper-item id="loginMenuFacebook" on-click="login" hidden$="[[statusKnown]]">Login with Facebook</paper-item>
-      <paper-item id="loginMenuGoogle" on-click="login" hidden$="[[statusKnown]]">Login with Google</paper-item>
-      <paper-item id="loginMenuGithub" on-click="login" hidden$="[[statusKnown]]">Login with Github</paper-item>
-      <paper-item id="loginMenuTwitter" on-click="login" hidden$="[[statusKnown]]">Login with Twitter</paper-item>
-      <paper-item id="loginMenuEmailPass" on-click="openLoginPassDiag" hidden$="[[statusKnown]]">Login with E-Mail&Password</paper-item>
-      <paper-item id="loginMenuLogout" on-click="logout" hidden$="[[!statusKnown]]">Logout</paper-item>
+      <paper-item id="loginMenuFacebook" on-click="_login" hidden$="[[statusKnown]]">Login with Facebook</paper-item>
+      <paper-item id="loginMenuGoogle" on-click="_login" hidden$="[[statusKnown]]">Login with Google</paper-item>
+      <paper-item id="loginMenuGithub" on-click="_login" hidden$="[[statusKnown]]">Login with Github</paper-item>
+      <paper-item id="loginMenuTwitter" on-click="_login" hidden$="[[statusKnown]]">Login with Twitter</paper-item>
+      <paper-item id="loginMenuEmailPass" on-click="_openLoginPassDiag" hidden$="[[statusKnown]]">Login with E-Mail&Password</paper-item>
+      <paper-item id="loginMenuLogout" on-click="_logout" hidden$="[[!statusKnown]]">Logout</paper-item>
     </paper-menu>
   </paper-menu-button>
 
@@ -152,18 +152,18 @@ Custom property | Description | Default
           <gold-email-input id="inputLoginEmail" label="E-Mail" required auto-validate></gold-email-input>
           <paper-input id="inputLoginPass" label="Password" type="password" required auto-validate error-message="Empty input!"></paper-input>
           <div class="buttons">
-            <paper-button dialog-confirm autofocus on-click="mailPassLogin">Login</paper-button>
+            <paper-button dialog-confirm autofocus on-click="_mailPassLogin">Login</paper-button>
             <paper-button dialog-dismiss>Close</paper-button>
           </div>
           <div class="buttons">
-            <paper-button on-click="mailPassForgotPW">Forgot Password</paper-button>
+            <paper-button on-click="_mailPassForgotPW">Forgot Password</paper-button>
           </div>
         </section>
         <section id="divRegister">
           <gold-email-input id="inputRegEmail" label="E-Mail" required auto-validate></gold-email-input>
           <paper-input id="inputRegPass" label="Password" type="password" required auto-validate error-message="Empty input!"></paper-input>
           <div class="buttons">
-            <paper-button dialog-confirm autofocus on-click="mailPassRegister">Register</paper-button>
+            <paper-button dialog-confirm autofocus on-click="_mailPassRegister">Register</paper-button>
             <paper-button dialog-dismiss>Close</paper-button>
           </div>
         </section>
@@ -178,7 +178,7 @@ Custom property | Description | Default
       <paper-input id="oldPassInput" label="Old password" type="password" required auto-validate error-message="Empty input!"></paper-input>
       <paper-input id="newPassInput" label="New password" type="password" required auto-validate error-message="Empty input!"></paper-input>
       <div class="buttons">
-        <paper-button dialog-confirm autofocus on-click="mailPassReset">Save</paper-button>
+        <paper-button dialog-confirm autofocus on-click="_mailPassReset">Save</paper-button>
         <paper-button dialog-dismiss>Cancel</paper-button>
       </div>
     </paper-dialog-scrollable>
@@ -293,14 +293,14 @@ Custom property | Description | Default
     },
 
     attached: function() {
-      this.checkMenueItemsAndUsername();
+      this._checkMenueItemsAndUsername();
     },
 
     // Element Behavior
     /**
     * Convenience login function.
     */
-    login: function(event) {
+    _login: function(event) {
       this.$.menuButton.close();
 
       if(event.srcElement.id.includes("Google"))
@@ -329,15 +329,22 @@ Custom property | Description | Default
     * Function called, when Firebase-Auth logged in succesfully.
     * Calls convenience functions and sets up firebase reference.
     */
-    onFirebaseLogin: function(event) {
+    _onFirebaseLogin: function(event) {
       // set statusKnown again, so hiding Login/Logout button works
       // seems like, it is set after the buttons are drawn on init
       this.statusKnown = true;
       // set correct username
-      this.checkMenueItemsAndUsername();
+      this._checkMenueItemsAndUsername();
       this.firebaseRef = new Firebase(this.firebaseUrl);
       document.getElementById("toastLoggedIn").open();
-      // fire login event to implementing app
+
+      /**
+      * Fired when log in was successfull.
+      *
+      * @event loggedIn
+      * @param {object} user The user object from firebase.
+      * @param {String} url The URL to the firebase instance.
+      */
       this.fire('loggedIn', {user: event.detail.user, url: this.firebaseUrl});
     },
 
@@ -345,21 +352,26 @@ Custom property | Description | Default
     * Logout function calls Firebase-Auth and convenience functions
     * regarding the login menue and the username.
     */
-    logout: function() {
+    _logout: function() {
       this.$.menuButton.close();
       this.$.baseLogin.logout();
 
       this.statusKnown = false;
-      this.checkMenueItemsAndUsername();
+      this._checkMenueItemsAndUsername();
       document.getElementById("toastLoggedOut").open();
-      // fire logout event to implementing app
+
+      /**
+      * Fired when log out was successfull.
+      *
+      * @event loggedOut
+      */
       this.fire('loggedOut');
     },
 
     /**
     * If connection to Firebase fails, show error toast
     */
-    onFirebaseError: function(event) {
+    _onFirebaseError: function(event) {
       this.$.toastLoggedInError.text = 'Login failed! ' + event.detail.message;
       this.$.toastLoggedInError.show();
     },
@@ -370,7 +382,7 @@ Custom property | Description | Default
     * Additionally used to adjust Username/Login/Logout String
     * on the button.
     */
-    checkMenueItemsAndUsername: function() {
+    _checkMenueItemsAndUsername: function() {
       // hide deactivated login methods
       if(!this.statusKnown) {
         if(!this.facebook && document.getElementById('loginMenuFacebook') != null)
@@ -414,7 +426,7 @@ Custom property | Description | Default
     /**
     * Function for LoginPassDiag
     */
-    openLoginPassDiag: function() {
+    _openLoginPassDiag: function() {
       this.$.menuButton.close();
 
       this.firebaseProvider = "password";
@@ -424,7 +436,7 @@ Custom property | Description | Default
     /**
     * Login function for firebases mail & password provider
     */
-    mailPassLogin: function() {
+    _mailPassLogin: function() {
       if(this.$.inputLoginEmail.validate() &&
       this.$.inputLoginPass.value.length > 0) {
         if(!this.firebaseRef)
@@ -449,7 +461,7 @@ Custom property | Description | Default
     /**
     * Function to send password-forgot-mail
     */
-    mailPassForgotPW: function() {
+    _mailPassForgotPW: function() {
       if(this.$.inputRegEmail.validate()) {
         if(!this.firebaseRef)
           this.firebaseRef = new Firebase(this.firebaseUrl);
@@ -469,7 +481,7 @@ Custom property | Description | Default
     /**
     * Function to register a user for firebase mail & passwort provider
     */
-    mailPassRegister: function() {
+    _mailPassRegister: function() {
       if(this.$.inputRegEmail.validate() &&
       this.$.inputRegPass.value.length > 0) {
         if(!this.firebaseRef)
@@ -491,7 +503,7 @@ Custom property | Description | Default
     /**
     * Function to reset the password
     */
-    mailPassReset: function() {
+    _mailPassReset: function() {
       if(this.$.oldPassInput.value.length > 0 &&
          this.$.newPassInput.value.length > 0) {
 

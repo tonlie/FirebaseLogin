@@ -78,6 +78,11 @@ Custom property | Description | Default
       margin-bottom: 0px;
     };
   }
+  :host #resetPassDialogHeader {
+    background-color: var(--firebase-login-dialog-tabs-background-color, --accent-color);
+    color: var(--firebase-login-dialog-tabs-text-color, --text-primary-color);
+    padding: 12px 12px;
+  }
   :host paper-item {
     display: block;
     font-size: 10pt;
@@ -173,7 +178,7 @@ Custom property | Description | Default
 
   <!-- Reset password dialog -->
   <paper-dialog id="resetPassDialog" modal>
-    <h3>Reset password</h3>
+    <div id="resetPassDialogHeader">Reset password</div>
     <paper-dialog-scrollable>
       <paper-input id="oldPassInput" label="Old password" type="password" required auto-validate error-message="Empty input!"></paper-input>
       <paper-input id="newPassInput" label="New password" type="password" required auto-validate error-message="Empty input!"></paper-input>
@@ -462,12 +467,12 @@ Custom property | Description | Default
     * Function to send password-forgot-mail
     */
     _mailPassForgotPW: function() {
-      if(this.$.inputRegEmail.validate()) {
+      if(this.$.inputLoginEmail.validate()) {
         if(!this.firebaseRef)
           this.firebaseRef = new Firebase(this.firebaseUrl);
 
         this.firebaseRef.resetPassword({
-          email: this.$.inputRegEmail.value
+          email: this.$.inputLoginEmail.value
         }, function(error) {
           if(error) {
             document.getElementById("toastMailSentError").open();

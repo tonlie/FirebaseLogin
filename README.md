@@ -9,7 +9,6 @@ Built to work extra great in `<paper-header-panel>`'s.
 Example:
 ```html
 <firebase-login
-auto-login
 redirect
 google
 mail-pass

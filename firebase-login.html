@@ -306,12 +306,10 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
       {
         this.firebaseProvider = 'twitter';
       }
-      else {
-        // last resort/fallback
-        this.firebaseProvider = 'google';
-      }
 
-      this.$.baseLogin.login();
+      // bugfix for auto-login
+      if(this.firebaseProvider.length > 0)
+        this.$.baseLogin.login();
     },
 
     /**
@@ -386,10 +384,12 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
           case 'github':
             this.userName = this.user.github.username;
           break;
+          case 'twitter':
+            this.userName = this.user.twitter.displayName;
+          break;
           case 'password':
             this.userName = this.user.password.email.split("@")[0];
           break;
-          // TODO determine twitter username
           default:
             this.userName = 'default';
         }

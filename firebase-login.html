@@ -26,6 +26,10 @@ Firebase E-Mail&Password functionality
 <link rel="import" href="../gold-email-input/gold-email-input.html">
 <link rel="import" href="../paper-input/paper-input.html">
 
+<!-- testing drawer panel -->
+<link rel="import" href="../paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+
 <!--
 An element that creates a login menu for firebase.
 Includes a `<paper-menu-button>`, encapsulating a `<firebase-auth>` element and
@@ -95,15 +99,19 @@ Custom property | Description | Default
     color: var(--firebase-login-menu-item-hover-text, --text-primary-color);
   }
   :host paper-button {
+    text-transform: none;
     cursor:pointer;
   }
   :host paper-menu {
     display: block;
   }
-  :host paper-menu-button {
-    padding: 0px;
+  :host .menuButton {
+    border-radius: 0px;
     background: var(--firebase-login-button-background, --accent-color);
     color: var(--firebase-login-button-text, --text-primary-color);
+  }
+  :host #menuButtonId {
+    padding: 0px;
   }
   :host > .paper-dialog-0 > * {
     margin-top: 0px;
@@ -117,6 +125,9 @@ Custom property | Description | Default
   }
   </style>
 
+  <iron-media-query query="max-width: [[maxWidth]]" query-matches="{{queryMatch}}">
+  </iron-media-query>
+
   <firebase-auth
   id="baseLogin"
   user={{user}}
@@ -127,20 +138,37 @@ Custom property | Description | Default
   on-login="_onFirebaseLogin">
   </firebase-auth>
 
-  <paper-menu-button id="menuButton">
+  <paper-menu-button id="menuButtonId" class="menuButton" hidden$="[[queryMatch]]">
     <paper-button class="dropdown-trigger">
       <iron-icon icon="icons:account-circle"></iron-icon>
       [[userName]]
     </paper-button>
     <paper-menu class="dropdown-content">
-      <paper-item id="loginMenuFacebook" on-click="_login" hidden$="[[statusKnown]]">Login with Facebook</paper-item>
-      <paper-item id="loginMenuGoogle" on-click="_login" hidden$="[[statusKnown]]">Login with Google</paper-item>
-      <paper-item id="loginMenuGithub" on-click="_login" hidden$="[[statusKnown]]">Login with Github</paper-item>
-      <paper-item id="loginMenuTwitter" on-click="_login" hidden$="[[statusKnown]]">Login with Twitter</paper-item>
-      <paper-item id="loginMenuEmailPass" on-click="_openLoginPassDiag" hidden$="[[statusKnown]]">Login with E-Mail&Password</paper-item>
+      <paper-item id="loginMenuFacebook" on-click="_login" hidden$="[[_computeHidden(statusKnown, facebook)]]">Login with Facebook</paper-item>
+      <paper-item id="loginMenuGoogle" on-click="_login" hidden$="[[_computeHidden(statusKnown, google)]]">Login with Google</paper-item>
+      <paper-item id="loginMenuGithub" on-click="_login" hidden$="[[_computeHidden(statusKnown, github)]]">Login with Github</paper-item>
+      <paper-item id="loginMenuTwitter" on-click="_login" hidden$="[[_computeHidden(statusKnown, twitter)]]">Login with Twitter</paper-item>
+      <paper-item id="loginMenuEmailPass" on-click="_openLoginPassDiag" hidden$="[[_computeHidden(statusKnown, mailPass)]]">Login with E-Mail&Password</paper-item>
       <paper-item id="loginMenuLogout" on-click="_logout" hidden$="[[!statusKnown]]">Logout</paper-item>
     </paper-menu>
   </paper-menu-button>
+
+  <paper-drawer-panel id="drawerMenu" force-narrow hidden$="[[!queryMatch]]">
+    <paper-menu drawer>
+      <paper-item id="loginMenuFacebook" on-click="_login" hidden$="[[_computeHidden(statusKnown, facebook)]]">Login with Facebook</paper-item>
+      <paper-item id="loginMenuGoogle" on-click="_login" hidden$="[[_computeHidden(statusKnown, google)]]">Login with Google</paper-item>
+      <paper-item id="loginMenuGithub" on-click="_login" hidden$="[[_computeHidden(statusKnown, github)]]">Login with Github</paper-item>
+      <paper-item id="loginMenuTwitter" on-click="_login" hidden$="[[_computeHidden(statusKnown, twitter)]]">Login with Twitter</paper-item>
+      <paper-item id="loginMenuEmailPass" on-click="_openLoginPassDiag" hidden$="[[_computeHidden(statusKnown, mailPass)]]">Login with E-Mail&Password</paper-item>
+      <paper-item id="loginMenuLogout" on-click="_logout" hidden$="[[!statusKnown]]">Logout</paper-item>
+    </paper-menu>
+    <div main>
+      <paper-button class="menuButton" paper-drawer-toggle>
+        <iron-icon icon="icons:account-circle"></iron-icon>
+        [[userName]]
+      </paper-button>
+    </div>
+  </paper-drawer-panel>
 
   <!--
   Firebase Login & Password
@@ -278,6 +306,18 @@ Custom property | Description | Default
       autoLogin: {
         type: Boolean,
         value: false
+      },
+
+      /**
+      * Max-width for media query for the drawer-panel.
+      * If you don't wish to use the drawer-panel, set this to 0px.
+      *
+      * example: 640px
+      */
+      maxWidth: {
+        type: String,
+        value: "640px",
+        notify: true
       }
     },
 
@@ -298,7 +338,7 @@ Custom property | Description | Default
     },
 
     attached: function() {
-      this._checkMenueItemsAndUsername();
+      this._updateUsername();
     },
 
     // Element Behavior
@@ -306,7 +346,7 @@ Custom property | Description | Default
     * Convenience login function.
     */
     _login: function(event) {
-      this.$.menuButton.close();
+      this._closeMenu();
 
       if(event.srcElement.id.includes("Google"))
       {
@@ -339,9 +379,9 @@ Custom property | Description | Default
       // seems like, it is set after the buttons are drawn on init
       this.statusKnown = true;
       // set correct username
-      this._checkMenueItemsAndUsername();
+      this._updateUsername();
       this.firebaseRef = new Firebase(this.firebaseUrl);
-      document.getElementById("toastLoggedIn").open();
+      this.$$("#toastLoggedIn").open();
 
       /**
       * Fired when log in was successfull.
@@ -358,12 +398,12 @@ Custom property | Description | Default
     * regarding the login menue and the username.
     */
     _logout: function() {
-      this.$.menuButton.close();
+      this._closeMenu();
       this.$.baseLogin.logout();
 
       this.statusKnown = false;
-      this._checkMenueItemsAndUsername();
-      document.getElementById("toastLoggedOut").open();
+      this._updateUsername();
+      this.$$("#toastLoggedOut").open();
 
       /**
       * Fired when log out was successfull.
@@ -382,26 +422,9 @@ Custom property | Description | Default
     },
 
     /**
-    * Hides unused login types from login menu
-    *
-    * Additionally used to adjust Username/Login/Logout String
-    * on the button.
+    * Used to adjust Username/Login/Logout String on the button.
     */
-    _checkMenueItemsAndUsername: function() {
-      // hide deactivated login methods
-      if(!this.statusKnown) {
-        if(!this.facebook && document.getElementById('loginMenuFacebook') != null)
-          document.getElementById('loginMenuFacebook').setAttribute('hidden', true);
-        if(!this.google && document.getElementById('loginMenuGoogle') != null)
-          document.getElementById('loginMenuGoogle').setAttribute('hidden', true);
-        if(!this.twitter && document.getElementById('loginMenuTwitter') != null)
-          document.getElementById('loginMenuTwitter').setAttribute('hidden', true);
-        if(!this.github && document.getElementById('loginMenuGithub') != null)
-          document.getElementById('loginMenuGithub').setAttribute('hidden', true);
-        if(!this.mailPass && document.getElementById('loginMenuEmailPass') != null)
-          document.getElementById('loginMenuEmailPass').setAttribute('hidden', true);
-      }
-
+    _updateUsername: function() {
       // name functionality
       if(this.user) {
         switch (this.user.provider) {
@@ -432,7 +455,7 @@ Custom property | Description | Default
     * Function for LoginPassDiag
     */
     _openLoginPassDiag: function() {
-      this.$.menuButton.close();
+      this._closeMenu();
 
       this.firebaseProvider = "password";
       this.$.loginPassDialog.open();
@@ -452,11 +475,11 @@ Custom property | Description | Default
           password: this.$.inputLoginPass.value
         }, function(error, authData) {
           if(error) {
-            document.getElementById("toastLoggedInError").open();
+            this.$$("#toastLoggedInError").open();
           } else {
             // if temporary password, make user chosse a new one
             if(authData.password.isTemporaryPassword) {
-              document.getElementById("resetPassDialog").open();
+              this.$$("#resetPassDialog").open();
             }
           }
         });
@@ -475,9 +498,9 @@ Custom property | Description | Default
           email: this.$.inputLoginEmail.value
         }, function(error) {
           if(error) {
-            document.getElementById("toastMailSentError").open();
+            this.$$("#toastMailSentError").open();
           } else {
-            document.getElementById("toastMailSent").open();
+            this.$$("#toastMailSent").open();
           }
         });
       }
@@ -497,9 +520,9 @@ Custom property | Description | Default
           password: this.$.inputRegPass.value
         }, function(error, userData) {
           if(error) {
-            document.getElementById("toastUserCreatedError").open();
+            this.$$("#toastUserCreatedError").open();
           } else {
-            document.getElementById("toastUserCreated").open();
+            this.$$("#toastUserCreated").open();
           }
         });
       }
@@ -518,11 +541,34 @@ Custom property | Description | Default
             newPassword: this.$.newPassInput.value
           }, function(error) {
             if(error) {
-              document.getElementById("toastPassResetError").open();
+              this.$$("#toastPassResetError").open();
             } else {
-              document.getElementById("toastPassReset").open();
+              this.$$("#toastPassReset").open();
             }
           });
+        }
+      },
+
+      /**
+      * Convenience function to close the menus
+      */
+      _closeMenu: function() {
+        if(!this.queryMatch)
+          this.$.menuButtonId.close();
+        else
+          this.$.drawerMenu.closeDrawer();
+      },
+
+      /**
+      * Convenience function to show/hide login providers in the menus
+      */
+      _computeHidden: function(statusKnown, providerName) {
+        if(statusKnown)
+          return true;
+        else if(!providerName)
+          return true;
+        else {
+          return false;
         }
       }
     });

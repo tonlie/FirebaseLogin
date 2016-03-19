@@ -123,6 +123,11 @@ Custom property | Description | Default
   .error {
     background-color: var(--firebase-login-toast-error-background, #FF5252);
   }
+  /*important, so that it overlays the rest of the app*/
+  #drawerMenu {
+    height: 100vh;
+    z-index: 9999;
+  }
   </style>
 
   <iron-media-query query="max-width: [[maxWidth]]" query-matches="{{queryMatch}}">
@@ -153,7 +158,7 @@ Custom property | Description | Default
     </paper-menu>
   </paper-menu-button>
 
-  <paper-drawer-panel id="drawerMenu" force-narrow hidden$="[[!queryMatch]]">
+  <paper-drawer-panel id="drawerMenu" right-drawer force-narrow hidden$="[[!queryMatch]]">
     <paper-menu drawer>
       <paper-item id="loginMenuFacebook" on-click="_login" hidden$="[[_computeHidden(statusKnown, facebook)]]">Login with Facebook</paper-item>
       <paper-item id="loginMenuGoogle" on-click="_login" hidden$="[[_computeHidden(statusKnown, google)]]">Login with Google</paper-item>

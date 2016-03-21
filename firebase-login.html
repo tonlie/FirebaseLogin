@@ -124,9 +124,15 @@ Custom property | Description | Default
     background-color: var(--firebase-login-toast-error-background, #FF5252);
   }
   /*important, so that it overlays the rest of the app*/
-  #drawerMenu {
+  .drawerMenuShow {
+    width: 100vw;
     height: 100vh;
     z-index: 9999;
+  }
+  .drawerMenuHide {
+    width: 0vw;
+    height: 0vh;
+    z-index: -1;
   }
   </style>
 
@@ -149,29 +155,29 @@ Custom property | Description | Default
       [[userName]]
     </paper-button>
     <paper-menu class="dropdown-content">
-      <paper-item id="loginMenuFacebook" on-click="_login" hidden$="[[_computeHidden(statusKnown, facebook)]]">Login with Facebook</paper-item>
-      <paper-item id="loginMenuGoogle" on-click="_login" hidden$="[[_computeHidden(statusKnown, google)]]">Login with Google</paper-item>
-      <paper-item id="loginMenuGithub" on-click="_login" hidden$="[[_computeHidden(statusKnown, github)]]">Login with Github</paper-item>
-      <paper-item id="loginMenuTwitter" on-click="_login" hidden$="[[_computeHidden(statusKnown, twitter)]]">Login with Twitter</paper-item>
-      <paper-item id="loginMenuEmailPass" on-click="_openLoginPassDiag" hidden$="[[_computeHidden(statusKnown, mailPass)]]">Login with E-Mail&Password</paper-item>
-      <paper-item id="loginMenuLogout" on-click="_logout" hidden$="[[!statusKnown]]">Logout</paper-item>
+      <paper-item id="loginMenuFacebook" on-tap="_login" hidden$="[[_computeHidden(statusKnown, facebook)]]">Login with Facebook</paper-item>
+      <paper-item id="loginMenuGoogle" on-tap="_login" hidden$="[[_computeHidden(statusKnown, google)]]">Login with Google</paper-item>
+      <paper-item id="loginMenuGithub" on-tap="_login" hidden$="[[_computeHidden(statusKnown, github)]]">Login with Github</paper-item>
+      <paper-item id="loginMenuTwitter" on-tap="_login" hidden$="[[_computeHidden(statusKnown, twitter)]]">Login with Twitter</paper-item>
+      <paper-item id="loginMenuEmailPass" on-tap="_openLoginPassDiag" hidden$="[[_computeHidden(statusKnown, mailPass)]]">Login with E-Mail&Password</paper-item>
+      <paper-item id="loginMenuLogout" on-tap="_logout" hidden$="[[!statusKnown]]">Logout</paper-item>
     </paper-menu>
   </paper-menu-button>
 
+  <paper-button class="menuButton" paper-drawer-toggle hidden$="[[!queryMatch]]" on-tap="_openDrawer">
+    <iron-icon icon="icons:account-circle"></iron-icon>
+    [[userName]]
+  </paper-button>
   <paper-drawer-panel id="drawerMenu" right-drawer force-narrow hidden$="[[!queryMatch]]">
     <paper-menu drawer>
-      <paper-item id="loginMenuFacebook" on-click="_login" hidden$="[[_computeHidden(statusKnown, facebook)]]">Login with Facebook</paper-item>
-      <paper-item id="loginMenuGoogle" on-click="_login" hidden$="[[_computeHidden(statusKnown, google)]]">Login with Google</paper-item>
-      <paper-item id="loginMenuGithub" on-click="_login" hidden$="[[_computeHidden(statusKnown, github)]]">Login with Github</paper-item>
-      <paper-item id="loginMenuTwitter" on-click="_login" hidden$="[[_computeHidden(statusKnown, twitter)]]">Login with Twitter</paper-item>
-      <paper-item id="loginMenuEmailPass" on-click="_openLoginPassDiag" hidden$="[[_computeHidden(statusKnown, mailPass)]]">Login with E-Mail&Password</paper-item>
-      <paper-item id="loginMenuLogout" on-click="_logout" hidden$="[[!statusKnown]]">Logout</paper-item>
+      <paper-item id="loginMenuFacebook" on-tap="_login" hidden$="[[_computeHidden(statusKnown, facebook)]]">Login with Facebook</paper-item>
+      <paper-item id="loginMenuGoogle" on-tap="_login" hidden$="[[_computeHidden(statusKnown, google)]]">Login with Google</paper-item>
+      <paper-item id="loginMenuGithub" on-tap="_login" hidden$="[[_computeHidden(statusKnown, github)]]">Login with Github</paper-item>
+      <paper-item id="loginMenuTwitter" on-tap="_login" hidden$="[[_computeHidden(statusKnown, twitter)]]">Login with Twitter</paper-item>
+      <paper-item id="loginMenuEmailPass" on-tap="_openLoginPassDiag" hidden$="[[_computeHidden(statusKnown, mailPass)]]">Login with E-Mail&Password</paper-item>
+      <paper-item id="loginMenuLogout" on-tap="_logout" hidden$="[[!statusKnown]]">Logout</paper-item>
     </paper-menu>
     <div main>
-      <paper-button class="menuButton" paper-drawer-toggle>
-        <iron-icon icon="icons:account-circle"></iron-icon>
-        [[userName]]
-      </paper-button>
     </div>
   </paper-drawer-panel>
 
@@ -190,18 +196,18 @@ Custom property | Description | Default
           <gold-email-input id="inputLoginEmail" label="E-Mail" required auto-validate></gold-email-input>
           <paper-input id="inputLoginPass" label="Password" type="password" required auto-validate error-message="Empty input!"></paper-input>
           <div class="buttons">
-            <paper-button dialog-confirm autofocus on-click="_mailPassLogin">Login</paper-button>
+            <paper-button dialog-confirm autofocus on-tap="_mailPassLogin">Login</paper-button>
             <paper-button dialog-dismiss>Close</paper-button>
           </div>
           <div class="buttons">
-            <paper-button on-click="_mailPassForgotPW">Forgot Password</paper-button>
+            <paper-button on-tap="_mailPassForgotPW">Forgot Password</paper-button>
           </div>
         </section>
         <section id="divRegister">
           <gold-email-input id="inputRegEmail" label="E-Mail" required auto-validate></gold-email-input>
           <paper-input id="inputRegPass" label="Password" type="password" required auto-validate error-message="Empty input!"></paper-input>
           <div class="buttons">
-            <paper-button dialog-confirm autofocus on-click="_mailPassRegister">Register</paper-button>
+            <paper-button dialog-confirm autofocus on-tap="_mailPassRegister">Register</paper-button>
             <paper-button dialog-dismiss>Close</paper-button>
           </div>
         </section>
@@ -216,7 +222,7 @@ Custom property | Description | Default
       <paper-input id="oldPassInput" label="Old password" type="password" required auto-validate error-message="Empty input!"></paper-input>
       <paper-input id="newPassInput" label="New password" type="password" required auto-validate error-message="Empty input!"></paper-input>
       <div class="buttons">
-        <paper-button dialog-confirm autofocus on-click="_mailPassReset">Save</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="_mailPassReset">Save</paper-button>
         <paper-button dialog-dismiss>Cancel</paper-button>
       </div>
     </paper-dialog-scrollable>
@@ -344,6 +350,10 @@ Custom property | Description | Default
 
     attached: function() {
       this._updateUsername();
+
+      // Drawer event, fired when either the drawer or the main component
+      // of the panel are select
+      this.listen(this.$.drawerMenu, 'iron-select', '_drawerMenuEvent');
     },
 
     // Element Behavior
@@ -560,8 +570,11 @@ Custom property | Description | Default
       _closeMenu: function() {
         if(!this.queryMatch)
           this.$.menuButtonId.close();
-        else
+        else {
           this.$.drawerMenu.closeDrawer();
+          this.$.drawerMenu.toggleClass("drawerMenuShow", false);
+          this.$.drawerMenu.toggleClass("drawerMenuHide", true);
+        }
       },
 
       /**
@@ -574,6 +587,29 @@ Custom property | Description | Default
           return true;
         else {
           return false;
+        }
+      },
+
+      /**
+      * Utility function to open the drawer
+      */
+      _openDrawer: function() {
+        this.$.drawerMenu.openDrawer();
+      },
+
+      /**
+      * Eventhandler for drawer-panel.
+      * Hides the paper-drawer-panel in the background, when the drawer is closed.
+      * Shows it and puts it on top, when the drawer is opened.
+      */
+      _drawerMenuEvent: function(item) {
+        if(item.detail.item.id == 'drawer') {
+          this.$.drawerMenu.toggleClass("drawerMenuShow", true);
+          this.$.drawerMenu.toggleClass("drawerMenuHide", false);
+        }
+        else {
+          this.$.drawerMenu.toggleClass("drawerMenuShow", false);
+          this.$.drawerMenu.toggleClass("drawerMenuHide", true);
         }
       }
     });

@@ -29,12 +29,12 @@ For the element to work, the following properties must be set:
 | --- | --- | --- | --- |
 | `autoLogin` | Boolean | false | Activate automatic login, see firebase-element |
 | `facebook` | Boolean | false – notifies | facebook enables facebook authentication provider |
-| `firebaseRef` | Object – readOnly|| Firebase reference object |
+| `firebaseRef` | Object | readOnly | Firebase reference object |
 | `firebaseUrl` | string || firebaseUrl contains the URL to the firebase instance |
 | `github` | Boolean | false – notifies | github enables github authentication provider |
 | `google` | Boolean | false – notifies | google enables google authentication provider |
 | `mailPass` | Boolean | false – notifies | mailPass enables firebases own e-mail & password provider |
-| `maxWidth` | String | 640px – notifies | Max-width for media query for the drawer-panel. If you don't wish to use the drawer-panel, set this to 0px. |
+| `maxWidth` | String | 640px – notifies | Max-width for media query for the drawer-panel. To deactivate the drawer-panel, set this to 0px. |
 | `redirect` | Boolean | false | Should login try redirect, see firebase-element |
 | `statusKnown` | Boolean | false – readOnly | statusKnown determines, whether there is a user logged in |
 | `twitter` | Boolean | false – notifies | twitter enables twitter authentication provider |

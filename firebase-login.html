@@ -295,7 +295,6 @@ The following custom properties are also available for styling (see: https://www
       statusKnown: {
         type: Boolean,
         value: false,
-        readOnly: true,
         notifiy: true
       },
       /**
@@ -307,8 +306,7 @@ The following custom properties are also available for styling (see: https://www
       * Firebase reference object
       */
       firebaseRef: {
-        type: Object,
-        readOnly: true
+        type: Object
       },
 
       /**
@@ -500,7 +498,7 @@ The following custom properties are also available for styling (see: https://www
           if(error) {
             this.$$("#toastLoggedInError").open();
           } else {
-            // if temporary password, make user chosse a new one
+            // if temporary password, make user choose a new one
             if(authData.password.isTemporaryPassword) {
               this.$$("#resetPassDialog").open();
             }

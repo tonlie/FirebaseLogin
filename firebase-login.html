@@ -48,19 +48,31 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
 </firebase-login>
 ```
 
+## Usage
+Add the element to your app using the `<firebase-login>` tag. This will create a
+button that implements the login functionality.
+
+### Properties
+For the element to work, the following properties must be set:
+- `firebaseUrl`
+- at least one of the providers (e.g. `facebook`, `google`, ...)
+
 ### Styling
-The following custom properties and mixins are also available for styling:
-Custom property | Description | Default
---- | --- | ---
-`--firebase-login-button-background` | Background color of the paper-menu-button | `--accent-color`
-`--firebase-login-button-text` | Text color of the paper-menu-button | `--text-primary-color`
-`--firebase-login-menu-item-hover-background` | Background color of the paper-menu-button (e.g. 'Login with Google') | `--accent-color`
-`--firebase-login-menu-item-hover-text` | Text color of the paper-menu-items (e.g. 'Login with Google') | `--text-primary-color`
-`--firebase-login-dialog-tabs-background-color` | Background color of the paper-tabs in e-mail and password provider dialog | `--accent-color`
-`--firebase-login-dialog-tabs-text-color` | Text color of the paper-tabs in e-mail and password provider dialog | `--text-primary-color`
-`--firebase-login-dialog-button-text-color` | Text color of the paper-buttons in e-mail and password provider dialog | `--accent-color`
-`--firebase-login-toast-success-background` | Background color of the successfull toast messages | `#4CAF50`
-`--firebase-login-toast-error-background` | Background color of the unsuccessfull toast messages | `#FF5252`
+The element can be styled like most other elements using css.
+
+The following custom properties are also available for styling (see: https://www.polymer-project.org/1.0/docs/devguide/styling.html#xscope-styling-details):
+
+| Custom property | Description | Default |
+| --- | --- | --- |
+| `--firebase-login-button-background` | Background color of the paper-menu-button | `--accent-color` |
+| `--firebase-login-button-text` | Text color of the paper-menu-button | `--text-primary-color` |
+| `--firebase-login-menu-item-hover-background` | Background color of the paper-menu-button (e.g. 'Login with Google') | `--accent-color` |
+| `--firebase-login-menu-item-hover-text` | Text color of the paper-menu-items (e.g. 'Login with Google') | `--text-primary-color` |
+| `--firebase-login-dialog-tabs-background-color` | Background color of the paper-tabs in e-mail and password provider dialog | `--accent-color` |
+| `--firebase-login-dialog-tabs-text-color` | Text color of the paper-tabs in e-mail and password provider dialog | `--text-primary-color` |
+| `--firebase-login-dialog-button-text-color` | Text color of the paper-buttons in e-mail and password provider dialog | `--accent-color` |
+| `--firebase-login-toast-success-background` | Background color of the successfull toast messages | `#4CAF50` |
+| `--firebase-login-toast-error-background` | Background color of the unsuccessfull toast messages | `#FF5252` |
 
 @demo demo/index.html
 -->
@@ -291,6 +303,7 @@ Custom property | Description | Default
       statusKnown: {
         type: Boolean,
         value: false,
+        readOnly: true,
         notifiy: true
       },
       /**
@@ -301,10 +314,13 @@ Custom property | Description | Default
       /**
       * Firebase reference object
       */
-      firebaseRef: Object,
+      firebaseRef: {
+        type: Object,
+        readOnly: true
+      },
 
       /**
-      * Should login try redirect, see firebase-element
+      * Should login try to redirect, see firebase-element
       */
       redirect: {
         type: Boolean,

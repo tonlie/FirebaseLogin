@@ -16,8 +16,33 @@ firebase-url='https://<YOUR-FIREBASE-APP>.firebaseio.com'>
 </firebase-login>
 ```
 
+## Usage
+Add the element to your app using the `<firebase-login>` tag. This will create a
+button that implements the login functionality.
+
+### Properties
+For the element to work, the following properties must be set:
+* `firebaseUrl`
+* at least one of the providers (e.g. `facebook`, `google`, ...)
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| `autoLogin` | Boolean | false | Activate automatic login, see firebase-element |
+| `facebook` | Boolean | false – notifies | facebook enables facebook authentication provider |
+| `firebaseRef` | Object – readOnly|| Firebase reference object |
+| `firebaseUrl` | string || firebaseUrl contains the URL to the firebase instance |
+| `github` | Boolean | false – notifies | github enables github authentication provider |
+| `google` | Boolean | false – notifies | google enables google authentication provider |
+| `mailPass` | Boolean | false – notifies | mailPass enables firebases own e-mail & password provider |
+| `maxWidth` | String | 640px – notifies | Max-width for media query for the drawer-panel. If you don't wish to use the drawer-panel, set this to 0px. |
+| `redirect` | Boolean | false | Should login try redirect, see firebase-element |
+| `statusKnown` | Boolean | false – readOnly | statusKnown determines, whether there is a user logged in |
+| `twitter` | Boolean | false – notifies | twitter enables twitter authentication provider |
+
 ### Styling
-The following custom properties are also available for styling:
+The element can be styled like most other elements using css.
+
+The following custom properties are also available for styling (see: https://www.polymer-project.org/1.0/docs/devguide/styling.html#xscope-styling-details):
 
 | Custom property | Description | Default |
 | --- | --- | --- |

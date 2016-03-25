@@ -1,6 +1,5 @@
 {
   "name": "firebase-login",
-  "version": "0.5",
   "authors": [
     "tonlie <toni.liebscher@gmail.com>"
   ],
@@ -8,14 +7,20 @@
   "keywords": [
     "web-component",
     "polymer",
-    "seed"
+    "firebase",
+    "login"
   ],
   "main": "firebase-login.html",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tonlie/firebase-login/"
+  },
   "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/tonlie/seed-element/",
+  "homepage": "https://github.com/tonlie/firebase-login/",
   "ignore": [
-    "/.*",
-    "/test/"
+    ".*",
+    "test",
+    "bower_components"
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.2.0",
